@@ -1,0 +1,19 @@
+# Normaliza los finales de linea para que el diff no se llene de ruido cuando
+# alguien commitea desde Windows y alguien mas desde Linux o Mac.
+# El repo guarda LF; Windows lo convierte a CRLF al tocar los archivos.
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios: que git no intente convertirlos.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
