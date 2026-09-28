@@ -40,15 +40,15 @@ apuntar a otro lado, se overridea con `VITE_API_URL`.
 
 ## Rutas
 
-| Ruta               | Qué hace                                       |
-| ------------------ | ---------------------------------------------- |
-| `/`                | Principal, protegida                           |
-| `/login`           | Login por email y contraseña                   |
-| `/registro`        | Alta pública, siempre como paciente           |
-| `/verificar`       | Canje del código de 6 dígitos                 |
-| `/cambiar-password`| Cambio de contraseña, protegida                |
+| Ruta                 | Qué hace                             |
+| -------------------- | ------------------------------------ |
+| `/`                  | Principal, protegida                 |
+| `/login`             | Login por email y contraseña         |
+| `/registro`          | Alta pública, siempre como paciente |
+| `/verificar`         | Canje del código de 6 dígitos       |
+| `/cambiar-contrasena` | Cambio de contraseña, protegida    |
 
-`/` y `/cambiar-password` redirigen a `/login` si no hay sesión.
+`/` y `/cambiar-contrasena` redirigen a `/login` si no hay sesión.
 
 ## Cómo se guarda la sesión
 
