@@ -14,6 +14,10 @@ export default function Register() {
   const [telefono, setTelefono] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
+  const [alergias, setAlergias] = useState('')
+  const [cronicas, setCronicas] = useState('')
+  const [medicacion, setMedicacion] = useState('')
+  const [observaciones, setObservaciones] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [errores, setErrores] = useState<Record<string, string>>({})
   const [cargando, setCargando] = useState(false)
@@ -36,6 +40,12 @@ export default function Register() {
         telefono,
         password,
         password_confirm: passwordConfirm,
+        // La ficha de salud es obligatoria: el back la rechaza si falta.
+        // "Ninguna" es una respuesta válida, el silencio no.
+        ficha_alergias: alergias,
+        ficha_enfermedades_cronicas: cronicas,
+        ficha_medicacion: medicacion,
+        ficha_observaciones: observaciones,
       })
 
       // El registro no abre sesión: hay que verificar el email primero.
@@ -51,6 +61,9 @@ export default function Register() {
           telefono: err.mensajePorCampo('telefono') ?? '',
           password: err.mensajePorCampo('password') ?? '',
           password_confirm: err.mensajePorCampo('password_confirm') ?? '',
+          ficha_alergias: err.mensajePorCampo('ficha_alergias') ?? '',
+          ficha_enfermedades_cronicas:
+            err.mensajePorCampo('ficha_enfermedades_cronicas') ?? '',
         })
       } else {
         setError('No se pudo conectar con el servidor.')
@@ -144,6 +157,76 @@ export default function Register() {
             required
           />
         </Campo>
+
+        <fieldset className="flex flex-col gap-4 border-t border-zinc-200 pt-4">
+          <legend className="text-sm font-medium text-zinc-700">
+            Ficha de salud
+          </legend>
+          <p className="text-xs text-zinc-500">
+            La necesitamos para atenderte bien. Si no tenés nada, escribí
+            &quot;Ninguna&quot;. Queda registrada y la ve el profesional que te
+            atiende.
+          </p>
+
+          <Campo
+            id="alergias"
+            label="Alergias"
+            error={errores.ficha_alergias || undefined}
+            hint="Medicamentos, alimentos, látex…"
+          >
+            <textarea
+              id="alergias"
+              rows={2}
+              className={`field-input ${errores.ficha_alergias ? 'field-input-error' : ''}`}
+              value={alergias}
+              onChange={(e) => setAlergias(e.target.value)}
+              placeholder="Penicilina"
+              required
+            />
+          </Campo>
+
+          <Campo
+            id="cronicas"
+            label="Enfermedades crónicas"
+            error={errores.ficha_enfermedades_cronicas || undefined}
+            hint="Hipertensión, diabetes, asma…"
+          >
+            <textarea
+              id="cronicas"
+              rows={2}
+              className={`field-input ${errores.ficha_enfermedades_cronicas ? 'field-input-error' : ''}`}
+              value={cronicas}
+              onChange={(e) => setCronicas(e.target.value)}
+              placeholder="Ninguna"
+              required
+            />
+          </Campo>
+
+          <Campo id="medicacion" label="Medicación habitual" hint="Opcional">
+            <textarea
+              id="medicacion"
+              rows={2}
+              className="field-input"
+              value={medicacion}
+              onChange={(e) => setMedicacion(e.target.value)}
+              placeholder="Losartan 50mg por la mañana"
+            />
+          </Campo>
+
+          <Campo
+            id="observaciones"
+            label="Observaciones"
+            hint="Opcional. Lo que creas que el profesional debería saber."
+          >
+            <textarea
+              id="observaciones"
+              rows={2}
+              className="field-input"
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+            />
+          </Campo>
+        </fieldset>
 
         {error && <Aviso>{error}</Aviso>}
 
