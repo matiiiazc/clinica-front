@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "typecheck": "tsc -b --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verificar:paneles": "node scripts/verificar_paneles.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.48.0",

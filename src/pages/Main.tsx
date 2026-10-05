@@ -1,96 +1,67 @@
 /**
- * Pantalla principal. Es un placeholder a propósito: el diseño y las secciones
- * definitivas todavía no están definidos, así que acá solo se confirma que la
- * sesión quedó abierta y se da la opción de cambiar la contraseña o salir.
+ * Punto de entrada de los paneles.
+ *
+ * Antes de acá solo se confirmaba que la sesión estaba abierta. Ahora decide qué
+ * panel mostrar según el rol del usuario, porque los cuatro ven pantallas
+ * distintas y no tiene sentido mostrarle al paciente una agenda completa.
+ *
+ * El despacho es explícito y no un componente genérico con muchos props: cada
+ * panel tiene su propia forma de recibir la sección activa, y meterlos todos en
+ * un `switch` dentro de un panel gigante hace que cualquier cambio toque todo el
+ * archivo.
  */
 
-import { KeyRound, LogOut, Stethoscope } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-
+import PanelLayout from '../components/PanelLayout'
+import { Spinner } from '../components/ui'
 import { useAuth } from '../context/useAuth'
+import { useSeccionPanel } from '../lib/usePanel'
+import type { Rol } from '../lib/types'
+import PanelAdmin from '../panels/PanelAdmin'
+import PanelMedico from '../panels/PanelMedico'
+import PanelPaciente from '../panels/PanelPaciente'
+import PanelRecepcion from '../panels/PanelRecepcion'
+
+/**
+ * Secciones válidas por rol. Tiene que coincidir con `SECCIONES` de
+ * `PanelLayout`: es lo que evita que un `?sec=` inventado, o que sobre de una
+ * pestaña que este rol no tiene, deje la pantalla en blanco.
+ */
+const SECCIONES: Record<Rol, string[]> = {
+  admin: ['resumen', 'especialidades', 'profesionales', 'agenda', 'consultas', 'cola'],
+  recepcion: ['resumen', 'agenda', 'disponibles', 'consultas', 'cola'],
+  medico: ['agenda', 'estado'],
+  paciente: ['turnos', 'pedir', 'ficha', 'consultas'],
+}
+
+const PANELES: Record<Rol, (seccion: string) => React.ReactNode> = {
+  admin: (seccion) => <PanelAdmin seccion={seccion} />,
+  recepcion: (seccion) => <PanelRecepcion seccion={seccion} />,
+  medico: (seccion) => <PanelMedico seccion={seccion} />,
+  paciente: (seccion) => <PanelPaciente seccion={seccion} />,
+}
 
 export default function Main() {
-  const { usuario, cerrarSesion } = useAuth()
-  const navigate = useNavigate()
+  const { usuario, cargando } = useAuth()
 
-  async function salir() {
-    await cerrarSesion()
-    navigate('/login', { replace: true })
+  // El hook se llama siempre, incluso sin usuario: si se llamara después del
+  // `return` del spinner, cambiar de rol en caliente dejaria los hooks del panel
+  // anterior sin desbalancear y React se queja.
+  const [seccion, cambiarSeccion] = useSeccionPanel(SECCIONES[usuario?.rol ?? 'paciente'])
+
+  if (cargando || !usuario) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ color: 'var(--color-text-muted)' }}
+      >
+        <Spinner className="text-2xl" />
+      </div>
+    )
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b" style={{ borderColor: 'var(--color-border)' }}>
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4">
-          <span className="font-semibold" style={{ color: 'var(--color-text-heading)' }}>
-            Clínica
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={() => navigate('/cambiar-contrasena')}
-              title="Cambiar contraseña"
-            >
-              <KeyRound size={16} />
-              <span className="hidden sm:inline">Contraseña</span>
-            </button>
-            <button type="button" className="btn-ghost" onClick={salir} title="Cerrar sesión">
-              <LogOut size={16} />
-              <span className="hidden sm:inline">Salir</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="page-enter w-full max-w-md text-center">
-          <div
-            className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-          >
-            <Stethoscope size={26} style={{ color: 'var(--color-accent)' }} aria-hidden="true" />
-          </div>
-
-          <h1
-            className="text-2xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-heading)' }}
-          >
-            Próximamente
-          </h1>
-          <p className="mt-2 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-            Acá van a estar los turnos, los profesionales y la historia clínica.
-          </p>
-
-          {usuario && (
-            <div
-              className="mt-8 rounded-xl p-4 text-left text-sm"
-              style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-              }}
-            >
-              <p className="font-medium" style={{ color: 'var(--color-text-heading)' }}>
-                Sesión iniciada
-              </p>
-              <dl className="mt-2 space-y-1" style={{ color: 'var(--color-text-muted)' }}>
-                <div className="flex justify-between gap-4">
-                  <dt>Email</dt>
-                  <dd className="truncate">{usuario.email}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt>Rol</dt>
-                  <dd>{usuario.rol_display}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt>Email verificado</dt>
-                  <dd>{usuario.email_verified ? 'Sí' : 'No'}</dd>
-                </div>
-              </dl>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+    <PanelLayout seccion={seccion} onSeccion={cambiarSeccion}>
+      {PANELES[usuario.rol](seccion)}
+    </PanelLayout>
   )
 }
