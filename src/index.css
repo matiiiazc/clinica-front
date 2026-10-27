@@ -3,7 +3,7 @@
 /* El modo oscuro se controla con la clase .dark en <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+@theme static {
   color-scheme: light;
   --color-bg: #f8f6f6;
   --color-surface: #ffffff;
@@ -38,6 +38,10 @@
   --color-nav-active: #fbe9eb;
   --color-nav-active-text: #9c1c2b;
   --shadow-card: 0 3px 12px rgba(31, 21, 23, 0.05), 0 1px 2px rgba(31, 21, 23, 0.04);
+}
+
+:root {
+  color-scheme: light;
 }
 
 .dark {
