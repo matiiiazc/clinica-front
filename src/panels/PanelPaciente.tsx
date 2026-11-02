@@ -137,7 +137,6 @@ function SeccionColaPaciente() {
         entradas={datos ?? []}
         cargando={false}
         puedeGestionar={false}
-        onPrioridad={() => undefined}
         onAgendar={() => undefined}
       />
     </Card>

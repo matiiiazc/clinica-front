@@ -49,13 +49,9 @@ import type {
   Usuario,
 } from '../lib/types'
 import { AccionesDePersonal, ListaCola, ListaConsultas, TablaTurnos } from './comunes'
-import { AlertaUrgencias, SeccionUrgencias } from './SeccionUrgencias'
-import { PRIORIDAD_NORMAL, PRIORIDAD_URGENTE, esUrgente } from '../lib/urgencias'
 
 export default function PanelAdmin({ seccion }: { seccion: string }) {
   switch (seccion) {
-    case 'urgencias':
-      return <SeccionUrgencias />
     case 'especialidades':
       return <SeccionEspecialidades />
     case 'profesionales':
@@ -85,8 +81,6 @@ function SeccionResumen() {
 
   return (
     <>
-      <AlertaUrgencias />
-
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         <Metrica valor={datos.usuarios ?? 0} etiqueta="Usuarios" />
         <Metrica valor={datos.especialidades ?? 0} etiqueta="Especialidades" tono="acento" />
@@ -872,11 +866,6 @@ export function SeccionCola() {
 
   const { dialogo, pedirConfirmacion } = useConfirmacion()
 
-  const [prioridad, errorPrioridad] = useAccion(async (id: number, nueva: number) => {
-    await clinica.cambiarPrioridad(id, nueva)
-    await recargar()
-  })
-
   const [agendarDeCola, agendando_, errorAgendar] = useAccion(async (id: number) => {
     const { turno } = await clinica.agendarDesdeCola(id, new Date(inicio).toISOString())
     toast.mostrar('exito', `Turno asignado a ${turno.paciente} con ${turno.medico_nombre}.`)
@@ -914,7 +903,6 @@ export function SeccionCola() {
         </div>
       </BarraFiltros>
 
-      {errorPrioridad && <Aviso>{errorPrioridad}</Aviso>}
       {errorAgendar && <Aviso>{errorAgendar}</Aviso>}
       {errorSalir && <Aviso>{errorSalir}</Aviso>}
 
@@ -923,9 +911,6 @@ export function SeccionCola() {
           entradas={datos ?? []}
           cargando={cargando}
           puedeGestionar
-          onPrioridad={(entrada) =>
-            prioridad(entrada.id, esUrgente(entrada) ? PRIORIDAD_NORMAL : PRIORIDAD_URGENTE)
-          }
           onAgendar={(entrada) => {
             setAgendando(entrada.id)
             setInicio('')

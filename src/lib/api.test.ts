@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { api, apiFetch, clinica, mensajeHttp } from './api'
+import { api, apiFetch, mensajeHttp } from './api'
 import { ErrorDeFormulario, esErrorDeRed, mensajeDeError } from './errores'
 import { getAccessToken, setAccessToken } from './session'
 import { ApiError } from './types'
@@ -194,24 +194,6 @@ describe('apiFetch — rutas públicas', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(error.code).toBe('invalid_credentials')
     expect(error.message).toBe('Email o contraseña incorrectos.')
-  })
-})
-
-describe('clinica.registrarUrgencia', () => {
-  it('manda la prioridad de urgencia junto con el paciente', async () => {
-    fetchMock.mockResolvedValueOnce(respuesta(201, { id: 9 }))
-
-    await clinica.registrarUrgencia({ paciente: 'uuid-1', especialidad: 3, nota: 'dolor de pecho' })
-
-    const [url, opciones] = fetchMock.mock.calls[0]
-    expect(url).toBe('/api/cola')
-    expect(opciones.method).toBe('POST')
-    expect(JSON.parse(opciones.body)).toEqual({
-      paciente: 'uuid-1',
-      especialidad: 3,
-      nota: 'dolor de pecho',
-      prioridad: 10,
-    })
   })
 })
 

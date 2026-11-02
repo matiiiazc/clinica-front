@@ -27,8 +27,8 @@ import PanelRecepcion from '../panels/PanelRecepcion'
  * pestaña que este rol no tiene, deje la pantalla en blanco.
  */
 const SECCIONES: Record<Rol, string[]> = {
-  admin: ['resumen', 'urgencias', 'especialidades', 'profesionales', 'agenda', 'consultas', 'cola'],
-  recepcion: ['resumen', 'urgencias', 'agenda', 'disponibles', 'consultas', 'cola'],
+  admin: ['resumen', 'especialidades', 'profesionales', 'agenda', 'consultas', 'cola'],
+  recepcion: ['resumen', 'agenda', 'disponibles', 'consultas', 'cola'],
   medico: ['agenda', 'estado'],
   paciente: ['turnos', 'pedir', 'ficha', 'consultas'],
 }

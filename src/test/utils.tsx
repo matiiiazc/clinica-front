@@ -69,7 +69,6 @@ export function entradaDePrueba(parcial: Partial<EntradaCola> = {}): EntradaCola
     especialidad_id: 1,
     medico: null,
     medico_id: null,
-    prioridad: 10,
     estado: 'esperando',
     desde: null,
     hasta: null,

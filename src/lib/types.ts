@@ -175,7 +175,6 @@ export interface EntradaCola {
   especialidad_id: number
   medico: string | null
   medico_id: number | null
-  prioridad: number
   estado: 'esperando' | 'agendado' | 'descartado'
   desde: string | null
   hasta: string | null

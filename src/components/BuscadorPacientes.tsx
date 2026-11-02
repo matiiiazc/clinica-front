@@ -1,7 +1,7 @@
 /**
  * Buscador de pacientes con resultados.
  *
- * Lo usan el alta de turnos (recepción) y el registro de urgencias, por eso vive
+ * Lo usa el alta de turnos (recepción), por eso vive
  * en `components` y no dentro de un panel.
  *
  * Detalle del diseño, que viene del original: la búsqueda va al backend recién

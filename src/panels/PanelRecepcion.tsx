@@ -31,12 +31,9 @@ import { useConfirmacion } from '../lib/usePanel'
 import type { Especialidad, PacienteBusqueda, ResumenPanel } from '../lib/types'
 import { SeccionAgenda, SeccionCola, SeccionConsultas } from './PanelAdmin'
 import { AccionesDePersonal, TablaTurnos } from './comunes'
-import { AlertaUrgencias, SeccionUrgencias } from './SeccionUrgencias'
 
 export default function PanelRecepcion({ seccion }: { seccion: string }) {
   switch (seccion) {
-    case 'urgencias':
-      return <SeccionUrgencias />
     case 'agenda':
       return <SeccionAgendaRecepcion />
     case 'disponibles':
@@ -62,8 +59,6 @@ function SeccionResumenRecepcion() {
 
   return (
     <>
-      <AlertaUrgencias />
-
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         <Metrica valor={datos?.medicos_libres ?? 0} etiqueta="Profesionales libres" />
         <Metrica valor={datos?.turnos_hoy ?? 0} etiqueta="Turnos hoy" tono="acento" />

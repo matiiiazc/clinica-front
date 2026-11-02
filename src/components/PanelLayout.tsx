@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
-  Siren,
   Stethoscope,
   Users,
 } from 'lucide-react'
@@ -28,7 +27,6 @@ interface Seccion {
 const SECCIONES: Record<Rol, Seccion[]> = {
   admin: [
     { id: 'resumen', label: 'Resumen', icono: LayoutDashboard },
-    { id: 'urgencias', label: 'Urgencias', icono: Siren },
     { id: 'especialidades', label: 'Especialidades', icono: ClipboardList },
     { id: 'profesionales', label: 'Profesionales', icono: Users },
     { id: 'agenda', label: 'Agenda', icono: CalendarDays },
@@ -37,7 +35,6 @@ const SECCIONES: Record<Rol, Seccion[]> = {
   ],
   recepcion: [
     { id: 'resumen', label: 'Resumen', icono: LayoutDashboard },
-    { id: 'urgencias', label: 'Urgencias', icono: Siren },
     { id: 'agenda', label: 'Agenda', icono: CalendarDays },
     { id: 'disponibles', label: 'Disponibles', icono: Stethoscope },
     { id: 'consultas', label: 'Consultas', icono: ListChecks },

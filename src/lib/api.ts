@@ -13,7 +13,6 @@
  */
 
 import { getAccessToken, limpiarUsuario, setAccessToken } from './session'
-import { PRIORIDAD_URGENTE } from './urgencias'
 import {
   ApiError,
   type Bloqueo,
@@ -257,19 +256,9 @@ export const clinica = {
     api.get<EntradaCola[]>(`/api/cola${estado ? `?estado=${estado}` : ''}`),
   entrarEnCola: (body: { especialidad: number; medico?: number; nota?: string }) =>
     api.post<EntradaCola>('/api/cola', body),
-  cambiarPrioridad: (id: number, prioridad: number) => api.patch<EntradaCola>(`/api/cola/${id}/prioridad`, { prioridad }),
   agendarDesdeCola: (id: number, inicio: string) =>
     api.post<{ entrada: EntradaCola; turno: Turno }>(`/api/cola/${id}/agendar`, { inicio }),
   salirDeCola: (id: number) => api.delete<void>(`/api/cola/${id}`),
-  /**
-   * Alta de una urgencia por parte del personal: una entrada de cola con
-   * prioridad alta para el paciente indicado.
-   * NOTA para el back: ver `docs/BACK_PENDIENTE.md` (el POST tiene que aceptar
-   * `paciente` y `prioridad` cuando quien lo manda es personal de la clínica).
-   */
-  registrarUrgencia: (body: { paciente: string; especialidad: number; medico?: number; nota: string }) =>
-    api.post<EntradaCola>('/api/cola', { ...body, prioridad: PRIORIDAD_URGENTE }),
-
   buscarPacientes: (q: string) =>
     api.get<PacienteBusqueda[]>(`/api/pacientes?q=${encodeURIComponent(q)}`),
 
