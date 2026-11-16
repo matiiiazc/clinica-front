@@ -30,7 +30,7 @@ const SECCIONES: Record<Rol, string[]> = {
   admin: ['resumen', 'especialidades', 'profesionales', 'agenda', 'consultas', 'cola'],
   recepcion: ['resumen', 'agenda', 'disponibles', 'consultas', 'cola'],
   medico: ['agenda', 'estado'],
-  paciente: ['turnos', 'pedir', 'ficha', 'consultas'],
+  paciente: ['turnos', 'pedir', 'ficha', 'historial', 'consultas'],
 }
 
 const PANELES: Record<Rol, (seccion: string) => React.ReactNode> = {
