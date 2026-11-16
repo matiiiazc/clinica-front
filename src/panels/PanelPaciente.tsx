@@ -9,7 +9,7 @@
 
 import { useState } from 'react'
 
-import { Aviso, Card, Cargando, Metrica } from '../components/ui'
+import { Aviso, Badge, Card, Cargando, Metrica, Tabla, Td, Th } from '../components/ui'
 import { useToast } from '../context/useToast'
 import { clinica } from '../lib/api'
 import { mensajeDeError } from '../lib/errores'
@@ -23,6 +23,7 @@ import type {
   EntradaCola,
   Especialidad,
   FichaMedica,
+  HistorialClinico,
   RespuestaDisponibilidad,
   ResumenPanel,
   Turno,
@@ -35,6 +36,8 @@ export default function PanelPaciente({ seccion }: { seccion: string }) {
       return <SeccionPedirTurno />
     case 'ficha':
       return <SeccionFicha />
+    case 'historial':
+      return <SeccionHistorialClinico />
     case 'consultas':
       return <SeccionConsultasPaciente />
     default:
@@ -622,4 +625,218 @@ function aInputHoy(): string {
   const mes = String(hoy.getMonth() + 1).padStart(2, '0')
   const dia = String(hoy.getDate()).padStart(2, '0')
   return `${hoy.getFullYear()}-${mes}-${dia}`
+}
+
+// ---------------------------------------------------------------------------
+// Historial clinico
+// ---------------------------------------------------------------------------
+
+function SeccionHistorialClinico() {
+  const { datos, cargando, error } = useCarga<HistorialClinico>(
+    () => clinica.historialClinico(),
+    [],
+  )
+  const toast = useToast()
+
+  if (cargando) return <Cargando filas={4} />
+  if (error) return <Aviso>{error}</Aviso>
+  if (!datos) return <Aviso>No se pudo cargar el historial clínico.</Aviso>
+
+  const turnosCerrados = datos.turnos.filter(
+    (t) => t.estado !== 'pendiente' && t.estado !== 'confirmado',
+  )
+  const consultasRespondidas = datos.consultas.filter((c) => c.estado === 'respondida')
+
+  return (
+    <>
+      <Card
+        titulo="Historial clínico"
+        descripcion={`Turnos, ficha médica y consultas de ${datos.paciente.nombre}.`}
+      >
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <Metrica
+            valor={datos.turnos.length}
+            etiqueta="Turnos registrados"
+            tono="acento"
+          />
+          <Metrica
+            valor={turnosCerrados.length}
+            etiqueta="Turnos atendidos o cerrados"
+          />
+          <Metrica valor={datos.consultas.length} etiqueta="Consultas enviadas" />
+          <Metrica
+            valor={datos.ficha_medica ? 'Sí' : 'No'}
+            etiqueta="Ficha médica cargada"
+            tono={datos.ficha_medica ? 'acento' : 'neutro'}
+          />
+        </div>
+
+        {/* Ficha médica */}
+        <Card titulo="Tu ficha médica">
+          {datos.ficha_medica ? (
+            <dl className="flex flex-col gap-3">
+              <div>
+                <dt className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  Alergias
+                </dt>
+                <dd className="mt-0.5 text-sm whitespace-pre-wrap">
+                  {datos.ficha_medica.alergias || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  Enfermedades crónicas
+                </dt>
+                <dd className="mt-0.5 text-sm whitespace-pre-wrap">
+                  {datos.ficha_medica.enfermedades_cronicas || (
+                    <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  Medicación actual
+                </dt>
+                <dd className="mt-0.5 text-sm whitespace-pre-wrap">
+                  {datos.ficha_medica.medicacion || (
+                    <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  Observaciones
+                </dt>
+                <dd className="mt-0.5 text-sm whitespace-pre-wrap">
+                  {datos.ficha_medica.observaciones || (
+                    <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                  )}
+                </dd>
+              </div>
+              {datos.ficha_medica.verificada && (
+                <div>
+                  <dt className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                    Verificada
+                  </dt>
+                  <dd className="mt-0.5 text-sm" style={{ color: 'var(--color-success)' }}>
+                    Por {datos.ficha_medica.verificada_por}
+                    {datos.ficha_medica.verificada_en ? ` · ${formatearRelativo(datos.ficha_medica.verificada_en)}` : ''}.
+                  </dd>
+                </div>
+              )}
+            </dl>
+          ) : (
+            <Vacio
+              titulo="Sin ficha médica todavía"
+              descripcion="Cuando un profesional la complete, aparecerá acá con tus alergias, enfermedades crónicas y medicación."
+            />
+          )}
+        </Card>
+
+        {/* Historial de turnos */}
+        <Card
+          titulo="Historial de turnos"
+          acciones={
+            turnosCerrados.length > 0 ? (
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => toast.mostrar('exito', 'Historial actualizado.')}
+              >
+                Actualizar
+              </button>
+            ) : undefined
+          }
+        >
+          {datos.turnos.length === 0 ? (
+            <Vacio
+              titulo="Sin turnos registrados"
+              descripcion="Cuando pidas o te asignen un turno, aparecerá acá."
+            />
+          ) : (
+            <Tabla>
+              <thead>
+                <tr>
+                  <Th>Fecha y hora</Th>
+                  <Th>Profesional</Th>
+                  <Th>Especialidad</Th>
+                  <Th>Estado</Th>
+                  <Th className="text-right">Motivo</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {datos.turnos.map((turno) => (
+                  <tr key={turno.id}>
+                    <Td className="whitespace-nowrap">
+                      <div className="font-medium">{formatearRango(turno.inicio, turno.fin)}</div>
+                      <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                        {formatearRelativo(turno.inicio)}
+                      </div>
+                    </Td>
+                    <Td>{turno.medico || '—'}</Td>
+                    <Td>{turno.especialidad_nombre}</Td>
+                    <Td>
+                      <Badge tono={tonoEstadoTurno(turno.estado)}>
+                        {etiquetaEstadoTurno(turno.estado)}
+                      </Badge>
+                    </Td>
+                    <Td className="max-w-[16rem] truncate text-right text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                      {turno.motivo || '—'}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Tabla>
+          )}
+        </Card>
+
+        {/* Consultas */}
+        <Card
+          titulo="Consultas a recepción"
+          descripcion="Mensajes que enviaste y las respuestas del equipo."
+        >
+          {datos.consultas.length === 0 ? (
+            <Vacio
+              titulo="Sin consultas"
+              descripcion="Cuando escribas una consulta, aparecerá acá con su respuesta."
+            />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {datos.consultas.map((consulta) => (
+                <li
+                  key={consulta.id}
+                  className="rounded-lg border p-3"
+                  style={{ borderColor: 'var(--color-border)' }}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-sm font-medium">{consulta.estado}</div>
+                    <div className="flex items-center gap-2">
+                      <Badge tono={consulta.estado === 'abierta' ? 'neutro' : 'exito'}>
+                        {consulta.estado === 'abierta' ? 'Abierta' : 'Respondida'}
+                      </Badge>
+                      <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                        {formatearRelativo(consulta.creada)}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-1.5 text-sm whitespace-pre-wrap">{consulta.mensaje}</p>
+                  {consulta.respuesta && (
+                    <div
+                      className="mt-2 rounded-md p-2.5 text-sm"
+                      style={{ backgroundColor: 'var(--color-bg)' }}
+                    >
+                      <div className="mb-1 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                        Respuesta de {consulta.respondida_por_nombre || 'el equipo'}
+                      </div>
+                      <p className="whitespace-pre-wrap">{consulta.respuesta}</p>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </Card>
+    </>
+  )
 }

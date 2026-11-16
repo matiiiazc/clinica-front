@@ -22,6 +22,7 @@ import {
   type EstadoMedico,
   type EstadoTurno,
   type FichaMedica,
+  type HistorialClinico,
   type Medico,
   type PacienteBusqueda,
   type Paginado,
@@ -267,4 +268,9 @@ export const clinica = {
   fichaDe: (pacienteId: string) => api.get<FichaMedica>(`/api/pacientes/${pacienteId}/ficha`),
   verificarFicha: (pacienteId: string, nota?: string) =>
     api.post<FichaMedica>(`/api/pacientes/${pacienteId}/ficha`, { nota }),
+
+  historialClinico: (pacienteId?: string) => {
+    const q = pacienteId ? `?paciente=${encodeURIComponent(pacienteId)}` : ''
+    return api.get<HistorialClinico>(`/api/historial-clinico${q}`)
+  },
 }

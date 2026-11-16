@@ -48,6 +48,7 @@ const SECCIONES: Record<Rol, Seccion[]> = {
     { id: 'turnos', label: 'Mis turnos', icono: CalendarDays },
     { id: 'pedir', label: 'Pedir turno', icono: Stethoscope },
     { id: 'ficha', label: 'Ficha médica', icono: HeartPulse },
+    { id: 'historial', label: 'Historial clínico', icono: ClipboardList },
     { id: 'consultas', label: 'Consultas', icono: ListChecks },
   ],
 }

@@ -221,3 +221,53 @@ export interface Paginado<T> {
   previous: string | null
   results: T[]
 }
+
+// ---------------------------------------------------------------------------
+// Historial clinico
+// ---------------------------------------------------------------------------
+
+export interface TurnoHistorial {
+  id: number
+  medico: string | null
+  especialidad_nombre: string
+  inicio: string
+  fin: string
+  estado: EstadoTurno
+  estado_display: string
+  motivo: string
+  notas: string
+  created_at: string
+}
+
+export interface ConsultaHistorial {
+  id: number
+  mensaje: string
+  respuesta: string
+  estado: 'abierta' | 'respondida'
+  respondida_por_nombre: string | null
+  creada: string
+  respondida_en: string | null
+}
+
+export interface HistorialClinico {
+  paciente: {
+    id: string
+    nombre: string
+    email: string
+    telefono: string
+    rol: Rol
+  }
+  ficha_medica: {
+    alergias: string
+    enfermedades_cronicas: string
+    medicacion: string
+    observaciones: string
+    verificada: boolean
+    verificada_por: string | null
+    verificada_en: string | null
+    creado: string
+    actualizado: string
+  } | null
+  turnos: TurnoHistorial[]
+  consultas: ConsultaHistorial[]
+}
