@@ -9,11 +9,11 @@
 
 import { useState } from 'react'
 
-import { Aviso, Badge, Card, Cargando, Metrica, Tabla, Td, Th } from '../components/ui'
+import { Aviso, Badge, Card, Cargando, Metrica, Tabla, Td, Th, Vacio } from '../components/ui'
 import { useToast } from '../context/useToast'
 import { clinica } from '../lib/api'
 import { mensajeDeError } from '../lib/errores'
-import { formatearRelativo, formatearRango, sumarMinutos } from '../lib/fechas'
+import { formatearRelativo, formatearRango, sumarMinutos, tonoEstadoTurno, etiquetaEstadoTurno } from '../lib/fechas'
 import { hayErrores, soloConError, validarTexto } from '../lib/validaciones'
 import { useAccion, useCarga } from '../lib/useCarga'
 import { useConfirmacion } from '../lib/usePanel'
@@ -645,7 +645,6 @@ function SeccionHistorialClinico() {
   const turnosCerrados = datos.turnos.filter(
     (t) => t.estado !== 'pendiente' && t.estado !== 'confirmado',
   )
-  const consultasRespondidas = datos.consultas.filter((c) => c.estado === 'respondida')
 
   return (
     <>
